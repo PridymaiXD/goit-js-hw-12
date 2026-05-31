@@ -53,44 +53,6 @@ searchForm.addEventListener('submit', async event => {
 
     createGallery(data.hits);
 
-    if (totalHits > page * 15) {
-      showLoadMoreButton();
-    }
-  } catch (error) {
-    iziToast.error({
-      title: 'Error',
-      message: 'Something went wrong. Please try again later.',
-      position: 'topRight',
-    });
-    //console.error(error);
-  } finally {
-    hideLoader();
-    form.reset();
-  }
-});
-
-
-loadMoreBtn.addEventListener('click', async () => {
-  page += 1;
-  
-  hideLoadMoreButton();
-  showLoader();
-
-try {
-    const data = await getImagesByQuery(searchQuery, page);
-    totalHits = data.totalHits;
-
-    if (data.hits.length === 0) {
-      iziToast.error({
-        title: 'Error',
-        message: 'Sorry, there are no images matching your search query. Please try again!',
-        position: 'topRight',
-      });
-      return;
-    }
-
-    createGallery(data.hits);
-
     if (totalHits <= page * 15) {
       hideLoadMoreButton();
       iziToast.info({
@@ -101,7 +63,6 @@ try {
     } else {
       showLoadMoreButton();
     }
-
   } catch (error) {
     iziToast.error({
       title: 'Error',
@@ -112,5 +73,48 @@ try {
   } finally {
     hideLoader();
     form.reset();
+  }
+});
+
+
+loadMoreBtn.addEventListener('click', async () => {
+  page += 1;
+
+  hideLoadMoreButton();
+  showLoader();
+
+  try {
+    const data = await getImagesByQuery(searchQuery, page);
+
+    createGallery(data.hits);
+
+    const galleryItem = document.querySelector('.gallery-item');
+    if (galleryItem) {
+      const cardHeight = galleryItem.getBoundingClientRect().height;
+      window.scrollBy({
+        top: cardHeight * 2,
+        behavior: 'smooth',
+      });
+    }
+
+    if (page * 15 >= totalHits) {
+      hideLoadMoreButton();
+      iziToast.info({
+        title: 'End',
+        message: "We're sorry, but you've reached the end of search results.",
+        position: 'topRight',
+      });
+    } else {
+      showLoadMoreButton();
+    }
+  } catch (error) {
+    iziToast.error({
+      title: 'Error',
+      message: 'Failed to load more images.',
+      position: 'topRight',
+    });
+    console.error(error);
+  } finally {
+    hideLoader();
   }
 });
