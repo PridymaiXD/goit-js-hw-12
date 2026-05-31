@@ -81,15 +81,15 @@ loadMoreBtn.addEventListener('click', async () => {
 
     createGallery(data.hits);
 
-    if (page * 15 >= totalHits) {
+ if (totalHits > page * 15) {
+      showLoadMoreButton();
+    } else {
       hideLoadMoreButton();
       iziToast.info({
         title: 'End',
         message: "We're sorry, but you've reached the end of search results.",
         position: 'topRight',
       });
-    } else {
-      showLoadMoreButton();
     }
 
     const galleryItem = document.querySelector('.gallery-item');
